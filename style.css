@@ -1,0 +1,31 @@
+* {
+  font-family: "Roboto", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+.intro {
+  background-color: #efefef;
+}
+.p-2,
+.link-secondary {
+  color: #0d4c92;
+  text-decoration: none;
+  font-weight: 600;
+}
+.blog-header-logo,
+.text-dark {
+  text-decoration: none;
+  color: #0d4c92;
+  font-weight: 600;
+}
+.display-5,
+.fw-bold,
+.lh-1,
+.mb-3 {
+  color: #0d4c92;
+}
+.modal-dialog,
+.modal-content,
+.rounded-4 {
+  background-color: #0d4c92;
+}

@@ -1,36 +1,29 @@
-import { useEffect,useState } from "react";
-import{Link as ReactLink} from 'react-router-dom';
 import * as React from 'react';
 import Box from '@mui/material/Box';
-import Paper from '@mui/material/Paper';
-import Stack from '@mui/material/Stack';
-import { styled } from '@mui/material/styles';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import { useEffect,useState } from "react";
+import { Menu } from '@mui/material';
+import { Fragment } from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+import { waitFor } from '@testing-library/react';
+import { wait } from '@testing-library/user-event/dist/utils';
 
 
-function ViewByItemScreen() {
-    const Item = styled(Paper)(({ theme }) => ({
-        backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
-        ...theme.typography.body2,
-        padding: theme.spacing(1),
-        textAlign: 'center',
-        color: theme.palette.text.secondary,
-      }));
+export default function ViewByItemScreen() {
 
-
-    // Create a JS object like an HTML form element 
-    
-    
     const user=localStorage.getItem("email");
-    console.log(user);
+   
     var formData = new FormData();
     formData.append('user',user);
-    console.log(formData);
     const [userDetails, setUserDetails]  = useState();
     var data;
     var T=0;
@@ -64,17 +57,9 @@ function ViewByItemScreen() {
       );
     
     data=userDetails;
-    console.log(data);
-    // function Total (userDetails){
-    //    var T=0;
-    //     for`userDetails`{
-    //         T+=product.price;
-    //     }
+  
 
-    
-    // return    T;
-    // }
-   function Floatify(string){
+    function Floatify(string){
         string=JSON.stringify(string)
         string=string.slice(19)
         string=string.slice(0,string.indexOf('"}'))
@@ -91,12 +76,61 @@ function ViewByItemScreen() {
                     
     buffer=createData(expense.datestring2,expense.itemname,Floatify(expense.quantity),Floatify(expense.unitprice),Floatify(expense.total)),
     rows.push(buffer)
-))} 
+))}
+
+
+
+  const [dropdownitem, setDropDownItem] = React.useState('');
+
+  const handleChange = (event) => {
+   
+    setDropDownItem(event.target.value);
+    
+    
+  };
+
+function GetItem(array){
+    var returnArray=[];
+    array.map((row) => (
+          returnArray.push(row.Item)
+      ))
+     return returnArray;
+
+    }
+    
+    let uniqueItems = [...new Set(GetItem(rows))];
+    let results= rows.filter(row => row.Item==dropdownitem);
+    
+    
+    
     
 
-    return(
 
-        <TableContainer component={Paper}>
+   
+
+  return (
+    <Fragment>
+    <Box sx={{ minWidth: 120 }}>
+      <FormControl fullWidth>
+        <InputLabel id="demo-simple-select-label">Item</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={dropdownitem}
+          defaultValue={""}
+          label="dropdown item"
+          onChange={handleChange}
+        >
+          {uniqueItems.map((row) => (
+              <MenuItem value={row}>
+                {row}
+              </MenuItem>
+            ))}
+          
+        
+        </Select>
+      </FormControl>
+      <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
@@ -108,7 +142,10 @@ function ViewByItemScreen() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
+            {
+            
+            results.map((row) => (
+                
               <TableRow
                 key={row.Date}
                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -125,14 +162,9 @@ function ViewByItemScreen() {
           </TableBody>
         </Table>
       </TableContainer>
-        /*<Stack spacing={2}>
-           {data?.map((expense) => (
-                    
-                            <Item>{"Date "}{expense.datestring2}{" item "}{expense.itemname}{" quantity "}{Floatify(expense.quantity)}{" price "}{Floatify(expense.unitprice)}{" total amount "}{Floatify(expense.total)}</Item>
-                           
-                   ))} 
-</Stack>*/
-    )
+    </Box>
+    
+    
+</Fragment>
+  );
 }
-
-export default ViewByItemScreen;

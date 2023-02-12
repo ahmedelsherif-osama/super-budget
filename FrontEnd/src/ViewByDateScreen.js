@@ -1,5 +1,5 @@
 import { useEffect,useState } from "react";
-import{Link as ReactLink} from 'react-router-dom';
+import{ Link as ReactLink, NavLink, Redirect, Router} from 'react-router-dom';
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -11,6 +11,13 @@ import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import Button from '@mui/material/Button';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import { Insights } from "@mui/icons-material";
+import DeleteExpenseScreen from "./DeleteExpenseScreen";
+import ListItemButton from '@mui/material/ListItemButton';
+import PrivateLayoutRoute from './PrivateLayoutRoute';
 
 
 function ViewByDateScreen() {
@@ -89,9 +96,45 @@ function ViewByDateScreen() {
    let buffer;
    {data?.map((expense) => (
                     
-    buffer=createData(expense.datestring2,expense.itemname,Floatify(expense.quantity),Floatify(expense.unitprice),Floatify(expense.total)),
+    buffer=createData(expense.datestring,expense.itemname,Floatify(expense.quantity),Floatify(expense.unitprice),Floatify(expense.total)),
     rows.push(buffer)
 ))} 
+
+let Date;
+var formData2 = new FormData();
+    
+
+function DeleteOne(){
+
+  formData2.append('user',user);
+  formData2.append('datestring',Date);
+    fetch(
+        `${process.env.REACT_APP_BACKEND_ENDPOINT}/expenses/delete`,
+        {
+            'method': 'DELETE',
+           'body':formData2
+            
+        }
+    )
+    .then(
+        function(backendResponse){
+          refresh();
+            
+        }
+    )
+   
+    .catch(
+        function(backendError){
+            console.log('backendEroor',backendError)
+        }
+    )
+
+  
+  
+ 
+}
+
+function refresh(){window.location.reload(true);}
 
     return(
 
@@ -104,6 +147,8 @@ function ViewByDateScreen() {
               <TableCell align="right">Quantity</TableCell>
               <TableCell align="right">Price&nbsp;(AED)</TableCell>
               <TableCell align="right">Total Amount&nbsp;(AED)</TableCell>
+              <TableCell align="center">Edit</TableCell>
+              <TableCell align="center">Delete</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -119,6 +164,9 @@ function ViewByDateScreen() {
                 <TableCell align="right">{row.Quantity}</TableCell>
                 <TableCell align="right">{row.Price}</TableCell>
                 <TableCell align="right">{row.TotalAmount}</TableCell>
+                <TableCell align="right"> <Button variant="outlined" startIcon={<EditIcon />}>Edit</Button></TableCell>
+                <TableCell align="right"> <Button onClick={()=>{Date=row.Date; DeleteOne();}} variant="outlined" >Delete</Button></TableCell>
+                
               </TableRow>
             ))}
           </TableBody>

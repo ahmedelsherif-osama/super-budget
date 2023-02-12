@@ -117,7 +117,6 @@ function GetItem(array){
           labelId="demo-simple-select-label"
           id="demo-simple-select"
           value={dropdownitem}
-          defaultValue={""}
           label="dropdown item"
           onChange={handleChange}
         >
@@ -127,7 +126,6 @@ function GetItem(array){
               </MenuItem>
             ))}
           
-        
         </Select>
       </FormControl>
       <TableContainer component={Paper}>

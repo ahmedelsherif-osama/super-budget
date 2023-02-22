@@ -5,6 +5,7 @@ const ExpenseModel = require('../models/ExpenseModel.js');
 
 
 const passport = require('passport');
+const { update } = require('../models/ExpenseModel.js');
 router.post('/viewbydate',
     //passport.authenticate('jwt', {session: false}),
     function(req, res) {
@@ -39,12 +40,8 @@ router.post('/viewbyitem',
             itemname: req.body.itemname
           
         }
-        ExpenseModel.find(
-            {
-                "user":req.body.user,
-                "itemname":req.body.itemname
-        }
-        )
+        ExpenseModel.find(formData)
+        
         .then(
             function(dbDocument){
                 res.json(dbDocument);
@@ -66,12 +63,14 @@ router.post('/viewbyitem',
 router.post('/find',
     function(req, res) {
 
-        // req.body.brand
+            const formData = {
+            user: req.body.user,
+            datestring: req.body.datestring
+          
+        }
         
-        ProductModel
-        .find(
-            { "brand": req.body.brand }
-        )
+        ExpenseModel
+        .find(formData)
         .then(
             function(dbDocument) {
                 res.json(dbDocument)
@@ -94,73 +93,41 @@ router.put(
     // passport.authenticate('jwt', {session: false}),
     async function(req, res) {
 
+        const formData = {
+            user: req.body.user,
+            datestring: req.body.datestring
+          
+        }
+        
         let updates = {}
-
-        if (req.body.firstName){ 
-            updates['firstName'] = req.body.firstName 
+        let total2;
+        let qty2;
+        let price2;
+        if (req.body.itemname) {
+            updates['itemname'] = req.body.itemname;
         };
-        if (req.body.lastName) {
-            updates['lastName'] = req.body.lastName;
+        if (req.body.quantity) {
+            updates['quantity'] = req.body.quantity;
+           
         };
-        if (req.body.phone) {
-            updates['phone'] = req.body.phone;
-        };
-
-        if (req.body.password) {
-            bcryptjs.genSalt(
-
-                function(bcryptError, theSalt) {
-                // Use the (a) and (b) salt user's password 
-                // and produce hashed password
-                    bcryptjs.hash( 
-                        req.body.password,                  // first ingredient
-                        theSalt,                            // second ingredient
-                        function(hashError, theHash) {      // the hash
-                            // Reassign the original password formData
-                            updates['password'] = theHash;
-
-                        }
-                    )
-                }
-            )
-        };
-
-
-        // If avatar file is included...
-        if( Object.values(req.files).length > 0 ) {
-
-            const files = Object.values(req.files);
+        if (req.body.unitprice) {
+            updates['unitprice'] = req.body.unitprice;
             
-            
-            // upload to Cloudinary
-            await cloudinary.uploader.upload(
-                files[0].path,
-                (cloudinaryErr, cloudinaryResult) => {
-                    if(cloudinaryErr) {
-                        console.log(cloudinaryErr);
-                        res.json(
-                            {
-                                status: "not ok",
-                                message: "Error occured during image upload"
-                            }
-                        )
-                    } else {
-                        // Include the image url in updates
-                        updates.avatar = cloudinaryResult.url;
-                        console.log('updates.avatar', updates.avatar)
-                    }
-                }
-            )
         };
+      
 
+       
 
-        UserModel
+        
+        ExpenseModel
         .findOneAndUpdate(
             {
-                "email": req.body.email
+                user: req.body.user,
+                datestring: req.body.datestring
             },
             {
-                $set: updates
+                $set: updates,
+                total: req.body.quantity*req.body.unitprice
             },
             {
                 new: true
@@ -173,7 +140,7 @@ router.put(
         )
         .catch(
             function(error) {
-                console.log('/users/update error', error);
+                console.log('/expenses/update error', error);
                 res.send('An error occured');
             }
         )

@@ -7,6 +7,7 @@ export const UserContext = createContext();
 // Declare actions for this component
 const UPDATE_USER = "UPDATE_USER";
 const LOGOUT_USER = "LOGOUT_USER";
+const UPDATE_DATE = "UPDATE_DATE";
 
 // Declare an initial state for the Context component (i.e, the global state)
 const initialState = {
@@ -15,13 +16,21 @@ const initialState = {
     jsonwebtoken: localStorage.getItem('jsonwebtoken') || undefined,
     loggedIn: localStorage.getItem('jsonwebtoken') || false,
     email: localStorage.getItem('email') || undefined,
-    avatar: localStorage.getItem('avatar') || undefined
+    avatar: localStorage.getItem('avatar') || undefined,
+    datestring: localStorage.getItem('datestring') || undefined
 }
 
 
 // The reducer that will change the (global) state
 const reducer = (state=false, action) => {
     if(action.type === UPDATE_USER) {
+        return {
+            ...state,
+            ...action.payload
+        }
+    }
+
+    if(action.type === UPDATE_DATE) {
         return {
             ...state,
             ...action.payload
@@ -40,6 +49,25 @@ const reducer = (state=false, action) => {
 export const UserContextProvider = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, initialState);
 
+    const updateDate = useCallback(
+        (payload) => {
+
+            // Set the values in the user's computer
+            localStorage.setItem('datestring',payload.datestring);
+
+
+            dispatch(
+                {
+                    type: UPDATE_DATE,
+                    payload: payload
+                }
+            )
+        }, [dispatch]
+    );
+
+    
+    
+    
     // Declare function to send payload to reducer
     const updateUser = useCallback(
         (payload) => {
@@ -50,6 +78,7 @@ export const UserContextProvider = ({ children }) => {
             localStorage.setItem('email', payload.email);
             localStorage.setItem('avatar', payload.avatar);
             localStorage.setItem('jsonwebtoken', payload.jsonwebtoken);
+            localStorage.setItem('datestring',"null");
 
 
             dispatch(
@@ -70,6 +99,7 @@ export const UserContextProvider = ({ children }) => {
             localStorage.setItem('email', null);
             localStorage.setItem('avatar', null);
             localStorage.setItem('jsonwebtoken', null);
+            localStorage.setItem('datestring',null);
 
             dispatch(
                 {
@@ -89,8 +119,10 @@ export const UserContextProvider = ({ children }) => {
                 loggedIn: state.loggedIn,
                 avatar: state.avatar,
                 email: state.email,
+                datestring: state.datestring,
                 updateUser,
-                logoutUser
+                logoutUser,
+                updateDate
             }}
         >{children}
         </UserContext.Provider>

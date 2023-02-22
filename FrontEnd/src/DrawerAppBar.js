@@ -106,13 +106,18 @@ export default function DrawerAppBar(props) {
                 >
                   <MenuIcon />
                 </IconButton>
+                
                 <Typography
                   variant="h6"
                   component="div"
+                  
                   sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
                 >
+                  <Link to={'/'}>
                   Super Budget
+                  </Link>
                 </Typography>
+               
                 <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                   {pagesLoggedIn.map((page, i) => (
                     <Button component={Link} to={pagesPathsLoggedIn[i]} key={page} sx={{ color: '#fff' }}>

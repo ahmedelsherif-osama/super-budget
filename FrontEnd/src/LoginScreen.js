@@ -87,6 +87,7 @@ function LoginScreen() {
                                 "lastName": jsonResponse.message.lastName,
                                 "avatar": jsonResponse.message.avatar,
                                 "jsonwebtoken": jsonResponse.message.jsonwebtoken,
+                                "datestring": "datestring",
                                 "loggedIn": true
                             }
                         )

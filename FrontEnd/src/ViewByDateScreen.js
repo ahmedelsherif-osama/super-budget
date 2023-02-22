@@ -1,5 +1,5 @@
 import { useEffect,useState } from "react";
-import{ Link as ReactLink, NavLink, Redirect, Router} from 'react-router-dom';
+import{ Link, Link as ReactLink, NavLink, Redirect, Router} from 'react-router-dom';
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -18,9 +18,21 @@ import { Insights } from "@mui/icons-material";
 import DeleteExpenseScreen from "./DeleteExpenseScreen";
 import ListItemButton from '@mui/material/ListItemButton';
 import PrivateLayoutRoute from './PrivateLayoutRoute';
-
+import UpdateExpenseScreen from "./UpdateExpenseScreen";
+import { useContext } from "react";
+import { ExpenseContext } from "./ExpenseContext";
+import { Fragment } from "react";
+import { UserContext } from "./UserContext";
 
 function ViewByDateScreen() {
+  
+  const {datestring, updateDate} = useContext(UserContext);
+  const {jsonwebtoken, updateUser} = useContext(UserContext);
+  const [ userDetails2, setUserDetails2 ] = useState();
+  const {value,setValue} = useContext(ExpenseContext);
+  
+  console.log(value);
+
     const Item = styled(Paper)(({ theme }) => ({
         backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#fff',
         ...theme.typography.body2,
@@ -31,7 +43,6 @@ function ViewByDateScreen() {
 
 
     // Create a JS object like an HTML form element 
-    
     
     const user=localStorage.getItem("email");
     console.log(user);
@@ -105,7 +116,9 @@ var formData2 = new FormData();
     
 
 function DeleteOne(){
+  
 
+    
   formData2.append('user',user);
   formData2.append('datestring',Date);
     fetch(
@@ -128,7 +141,7 @@ function DeleteOne(){
             console.log('backendEroor',backendError)
         }
     )
-
+ 
   
   
  
@@ -136,8 +149,17 @@ function DeleteOne(){
 
 function refresh(){window.location.reload(true);}
 
-    return(
 
+
+
+
+function EditOne(){
+  
+}
+
+    return(
+        <Fragment>
+          
         <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
@@ -164,21 +186,16 @@ function refresh(){window.location.reload(true);}
                 <TableCell align="right">{row.Quantity}</TableCell>
                 <TableCell align="right">{row.Price}</TableCell>
                 <TableCell align="right">{row.TotalAmount}</TableCell>
-                <TableCell align="right"> <Button variant="outlined" startIcon={<EditIcon />}>Edit</Button></TableCell>
-                <TableCell align="right"> <Button onClick={()=>{Date=row.Date; DeleteOne();}} variant="outlined" >Delete</Button></TableCell>
+                <TableCell align="right"> <Link onClick={()=>setValue(row.Date)}  to={'/updatexpense'} ><Button variant="outlined" startIcon={<EditIcon />}>Edit</Button></Link></TableCell>
+                <TableCell align="right"> <Button onClick={()=>{ if (window.confirm('Are you sure you wish to delete this expense?')){Date=row.Date; DeleteOne();}else{refresh();}}} variant="outlined" startIcon={<DeleteIcon />}>Delete</Button></TableCell>
                 
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-        /*<Stack spacing={2}>
-           {data?.map((expense) => (
-                    
-                            <Item>{"Date "}{expense.datestring2}{" item "}{expense.itemname}{" quantity "}{Floatify(expense.quantity)}{" price "}{Floatify(expense.unitprice)}{" total amount "}{Floatify(expense.total)}</Item>
-                           
-                   ))} 
-</Stack>*/
+
+</Fragment>
     )
 }
 

@@ -5,11 +5,13 @@ import DrawerAppBar from './DrawerAppBar';
 import Footer from './Footer';
 import { UserContext } from './UserContext';
 import AddExpenseScreen from './AddExpenseScreen';
-
+import { ExpenseContext } from './ExpenseContext';
 
 function LayoutRoute(props) {
 
     const {loggedIn} = useContext(UserContext);
+   
+
 
     if (loggedIn) {
         console.log(localStorage.getItem("email"));

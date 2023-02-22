@@ -1,8 +1,10 @@
+
+import { ExpenseContext } from "./ExpenseContext";
+import { Box } from "@mui/system";
 import { useEffect, useContext, useState} from "react";
-import {UserContext} from './UserContext.js';
+import React, {UserContext} from './UserContext.js';
 import Alert from '@mui/material/Alert';
 import Avatar from '@mui/material/Avatar';
-import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 import FormControl from '@mui/material/FormControl';
 import Button from '@mui/material/Button';
@@ -12,53 +14,60 @@ import Typography from '@mui/material/Typography';
 import { Checkbox } from "@mui/material";
 
 
-function ProfileScreen() {
-
-
+function UpdateExpenseScreen(){
 
     const [ userDetails, setUserDetails ] = useState();
-    const { jsonwebtoken, updateUser } = useContext(UserContext);
-
+    const { datestring, updateDate } = useContext(UserContext);
+    const {value, setValue} = useContext(ExpenseContext);
+    console.log(value);
     var [formState, setFormState] = useState(null);
     var [errorsState, setErrorsState] = useState([]);
     var [changePassword, setChangePassword] = useState(false);
 
-    var firstNameField;
-    var lastNameField;
-    var emailField;
-    var passwordField;
-    var avatarField;
-    var passwordRadio;
+    var datestringField;
+    var itemnameField;
+    var quantityField;
+    var priceField;
+    var totalamountField;
 
+    const user=localStorage.getItem("email");
+    
+    
+    //const {value, setValue} = useContext(ExpenseContext);
+    
+    var formData = new FormData();
+    var formData2 = new FormData();
+    formData.append('user',user);
+    formData.append('datestring',value);
+   
     useEffect(
         function() {
 
             fetch(
-                `${process.env.REACT_APP_BACKEND_ENDPOINT}/users/find`,
+                `${process.env.REACT_APP_BACKEND_ENDPOINT}/expenses/find`,
                 {
                     'method': 'POST',
-                    'headers': {
-                        'Authorization': `Bearer ${localStorage.getItem('jsonwebtoken')}`
-                    },
-                    // 'body': {}
+                    'body':formData
+                   
                 }
             )
-            // This will recieve string data and convert to json
+
+            
             .then(
                 function(backendReponse) {
-                    return backendReponse.json()
+                   
+                    return backendReponse.json();
+
                 }
             )
             // This will receie the converted json
             .then(
                 function(jsonResponse) {
                     setUserDetails(jsonResponse);
-                    updateUser(
-                        {
-                            jsonwebtoken,
-                            ...jsonResponse,
-                        }
-                    )
+                    
+                    
+                    
+
                 }
             )
             // This will catch errors if any
@@ -73,34 +82,70 @@ function ProfileScreen() {
         []
     );
 
+    var data=userDetails;
         console.log(userDetails);
-    var formData = new FormData();
-
-    function attachFile(evt) {
-
-        console.log('file data', evt.target.files)
-        // Creating an array from the files attached by user
-        var files = Array.from(evt.target.files);
-
-        files.forEach(
-            function(fileAttachment, index) {
-                formData.append(index, fileAttachment);
-            }
-        )
+    //console.log(userDetails.datestring);
+    function Floatify(string){
+        string=JSON.stringify(string)
+        string=string.slice(19)
+        string=string.slice(0,string.indexOf('"}'))
+        string=parseFloat(string)
+        return string;
+   }
+   function createData(Date, Item, Quantity, Price, TotalAmount) {
+    return { Date, Item, Quantity, Price, TotalAmount };
+  }
+    
+   const rows = [  ];
+   let buffer;
+   function getExpenseDetails(whichDetail){data?.map((expense) => (
+                    
+    buffer=createData(expense.datestring2,expense.itemname,Floatify(expense.quantity),Floatify(expense.unitprice),Floatify(expense.total)),
+    rows.push(buffer.Date)
+    
+))
+switch (whichDetail) {
+    case "Date":
+    return buffer.Date;
+    
+    case "Item":
+    return buffer.Item;
+    
+    case "Quantity":    
+    return buffer.Quantity;
+    
+    case "Total":
+    return buffer.TotalAmount;
+        
+    case "Price":
+    return buffer.Price;
+    
     }
     
+   
+}
+
+    function refresh(){window.location.reload(true);}
+
+
     function update() {
+
+        
 
         // 2. Validate the fields
         var errors = [];
 
-        if(emailField.value.length === 0) {
-            errors.push('Please enter your email');
+        if(itemnameField.value.length === 0) {
+            errors.push('Please enter the item\'\s name');
         }
 
-        if(passwordField.value.length === 0 && changePassword === true) {
-            errors.push('Please enter your password');
+        if(quantityField.value.length === 0 ) {
+            errors.push('Please enter the quantity');
         }
+        if(priceField.value.length === 0 ) {
+            errors.push('Please enter the unit price');
+        }
+
 
         // 3. If any field is not validated, go to "client error"
         if( errors.length > 0 ) {
@@ -114,41 +159,39 @@ function ProfileScreen() {
             setFormState("loading");
             setErrorsState([]);
 
-            // 6. Send data backend
-            formData.append('firstName', firstNameField.value);
-            formData.append('lastName', lastNameField.value);
-            formData.append('email', emailField.value);
-            if (changePassword) {
-                formData.append('password', passwordField.value);
-            }
 
+            // 6. Send data backend
+            formData2.append('datestring', datestring);
+            formData2.append('user', user);
+            formData2.append('itemname', itemnameField.value);
+            formData2.append('quantity', quantityField.value);
+            formData2.append('unitprice', priceField.value);
+          
             fetch(
-                `${process.env.REACT_APP_BACKEND_ENDPOINT}/users/update`,
+                `${process.env.REACT_APP_BACKEND_ENDPOINT}/expenses/update`,
                 {
                     'method': 'PUT',
-                    'body': formData
+                    'body': formData2
                 }
             )
             .then(
                 function(backendResponse) {
                     // Convert the HTTP string response to JSON
+                 
                     return backendResponse.json();
+                    
                 }
             )
             .then(
                 // 7. If backend sends success, go to "success"
                 function(jsonResponse) {
+                    
                     if(jsonResponse.status === "ok") {
-                        console.log('backend response /users/update', jsonResponse)
+                        console.log('backend response /expenses/update', jsonResponse)
                         setFormState("success");
+                        
 
-                        // Update the user context
-                        updateUser(
-                            {
-                                ...userDetails,
-                                ...jsonResponse
-                            }
-                        )
+                 
                     }
                     else {
                         setFormState("backend error");
@@ -158,68 +201,38 @@ function ProfileScreen() {
             .catch(
                 // 8. If backends sends error, go to "backend error"
                 function(backendError) {
-                    console.log('backendError at /users/update', backendError)
+                    console.log('backendError at /expenses/update', backendError)
                     setFormState("backend error");
                 }
             )
         }
     }
-
-
-    function togglePasswordChange(event) {
-       setChangePassword(event.currentTarget.checked);
-    }
-
     function addListItem(str) {
         return <li>{str}</li>
     }
-
-    
 
     if( userDetails ) {
         return (
             <Container maxWidth="sm">
                 <Box pt={8}>
                     <Typography component="h1" variant="h2">
-                        Profile Settings
+                        Update Expense
                     </Typography>
                 </Box>
 
-                <Box mt={4} mb={4}>
-                    <Typography component="p" variant="body1" gutterBottom>
-                        Upload your profile picture (optional)
-                    </Typography>
-
-                    <br/>
-
-                    <Box display="flex" justifyContent="center" flexDirection="column">
-                        <Avatar alt='Profile Picture' 
-                        src={userDetails.avatar} 
-                        sx={{width: 256, height: 256, margin: '0 auto'}}/> 
-
-                        <Button size="small" variant="contained" component="label">
-                            Upload
-                            <input 
-                                ref={function(thisElement){ avatarField = thisElement }} 
-                                onClick={attachFile}
-                                onChange={attachFile}
-                                hidden accept="image/*" 
-                                multiple type="file" 
-                            />
-                        </Button>
-                    </Box>
-                </Box>
+          
+                
                 <Box mt={4} mb={2}>
                     <FormControl fullWidth sx={{ mb: 2 }}>
                         <TextField 
                         inputRef={ 
                             function( thisElement ){
-                                firstNameField = thisElement;
+                                datestringField = thisElement;
                             } 
                         }
-                        label="Firstname" 
+                        label="date" 
                         required={true}
-                        defaultValue={userDetails.firstName}
+                        defaultValue={ getExpenseDetails("Date")}
                         />
                     </FormControl>
 
@@ -227,12 +240,12 @@ function ProfileScreen() {
                         <TextField 
                         inputRef={ 
                             function( thisElement ){
-                                lastNameField = thisElement;
+                                itemnameField = thisElement;
                             } 
                         }
-                        label="Lastname" 
+                        label="item" 
                         required={true}
-                        defaultValue={userDetails.lastName}
+                        defaultValue={getExpenseDetails("Item")}
                         />
                     </FormControl>
 
@@ -240,29 +253,42 @@ function ProfileScreen() {
                         <TextField 
                         inputRef={ 
                             function( thisElement ){
-                                emailField = thisElement;
+                                quantityField = thisElement;
                             } 
                         }
-                        label="Email" 
+                        label="Quantity" 
                         required={true}
-                        defaultValue={userDetails.email}
+                        defaultValue={getExpenseDetails("Quantity")}
                         />
                     </FormControl>
 
                     <FormControl fullWidth sx={{ mb: 2 }}>
                         <TextField 
-                        disabled={!changePassword} 
+                        
                         inputRef={ 
                             function( thisElement ){
-                                passwordField = thisElement;
+                                priceField = thisElement;
                             } 
                         }
-                        label="Password" 
+                        label="price" 
+                        required={true}
+                        defaultValue={getExpenseDetails("Price")}
                         />
                     </FormControl>
-                    <Checkbox 
-                    onChange={togglePasswordChange}
-                    inputRef={function(thisElement){passwordRadio = thisElement}} /> Change password?
+
+                    <FormControl fullWidth sx={{ mb: 2 }}>
+                        <TextField 
+                        inputRef={ 
+                            function( thisElement ){
+                                totalamountField = thisElement;
+                            } 
+                        }
+                        label="Total Amount" 
+                        required={true}
+                        defaultValue={getExpenseDetails("Total")}
+                        />
+                    </FormControl>
+                    
                 </Box>
 
                 <Box display="flex">
@@ -307,4 +333,4 @@ function ProfileScreen() {
     }
 }
 
-export default ProfileScreen;
+export default UpdateExpenseScreen;
